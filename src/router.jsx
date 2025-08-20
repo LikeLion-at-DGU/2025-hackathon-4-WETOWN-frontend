@@ -6,6 +6,7 @@ import HomePage from "./pages/Home/HomePage";
 import SurveyPage from "./pages/Home/SurveyPage";
 import SurveyDetail from "./pages/Home/SurveyDetail";
 import WritePage from "./pages/Write/WritePage";
+import PostPreview from "./pages/Write/PostPreview";
 import MapPage from "./pages/Map/MapPage";
 import BoardPage from "./pages/Board/BoardPage";
 import NewsPage from "./pages/News/NewsPage";
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
             { path: "/survey", element: <SurveyPage />},
             { path: "/survey/:id", element: <SurveyDetail />},
             { path: "/post", element: <WritePage /> },
+            { path: "/post/preview", element: <PostPreview /> },
             { path: "/map", element: <MapPage /> },
             { path: "/board", element: <BoardPage /> },
             { path: "/news", element: <NewsPage /> },

@@ -19,6 +19,7 @@ const MapPage = () => {
         <CategoryButtons
             selectedCategory={selectedCategory}
             onClick={handleCategoryClick}
+            
         />
         </div>
     );
