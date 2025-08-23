@@ -106,6 +106,28 @@ const SurveyPage = () => {
           </React.Fragment>
         ))}
       </List>
+      {/* 플로팅: 설문 작성 */}
+      <button
+        onClick={() => navigate("/write/admin")}
+        style={{
+          position: "fixed",
+          left: "50%",
+          transform: "translateX(-50%)",
+          bottom: "200px",          // 하단 탭과 겹치지 않게
+          zIndex: 20,
+          width: "140px",
+          height: "44px",
+          border: "none",
+          borderRadius: "999px",
+          background: "#2C917B",
+          color: "#fff",
+          fontWeight: 800,
+          boxShadow: "0 6px 16px rgba(0,0,0,0.15)",
+          cursor: "pointer",
+        }}
+      >
+        설문 작성
+      </button>
     </Wrap>
   );
 };

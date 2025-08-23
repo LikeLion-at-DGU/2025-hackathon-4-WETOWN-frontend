@@ -11,6 +11,7 @@ import PostPreview from "./pages/Write/PostPreview";
 import MapPage from "./pages/Map/MapPage";
 import BoardPage from "./pages/Board/BoardPage";
 import NewsPage from "./pages/News/NewsPage";
+import AdminPost from "./pages/Write/AdminPost";
 
 
 
@@ -21,6 +22,7 @@ const router = createBrowserRouter([
         children: [
             { path: "/", element: <HomePage /> },
             { path: "/survey", element: <SurveyPage />},
+            { path: "/write/admin", element: <AdminPost />},
             { path: "/survey/:id", element: <SurveyDetail />},
             { path: "/post", element: <WritePage /> },
             { path: "/post/preview", element: <PostPreview /> },

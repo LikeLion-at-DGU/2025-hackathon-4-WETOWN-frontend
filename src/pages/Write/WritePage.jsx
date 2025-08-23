@@ -35,7 +35,7 @@ const WritePage = () => {
   const [images, setImages] = useState([]); // File[]
   const fileRef = useRef(null);
 
-  // ✅ 등록 완료 후 미리보기로 넘길 데이터 저장
+  // 등록 완료 후 미리보기로 넘길 데이터 저장
   const [createdPost, setCreatedPost] = useState(null);
 
   const canNext = !!cat && !!area;
