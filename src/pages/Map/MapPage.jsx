@@ -1,7 +1,4 @@
-
 import { useEffect, useState } from "react";
-
-
 import { useNavigate } from "react-router-dom";
 import CategoryButtons from "../../components/CategoryButton";
 import KakaoMap from "../../components/KakaoMap";
@@ -10,55 +7,60 @@ import { getPosts } from "../../apis/posts";
 import styled from "styled-components";
 
 const MapPage = () => {
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [search, setSearch] = useState("");
-  const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null); // 마커 클릭한 글
+    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [search, setSearch] = useState("");
+    const [posts, setPosts] = useState([]);
+    const [selectedPost, setSelectedPost] = useState(null); // 마커 클릭한 글
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getPosts();
-        setPosts(Array.isArray(data) ? data : []);
-      } catch (err) {
-        console.error("글 불러오기 실패:", err);
-        setPosts([]);
-      }
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const data = await getPosts();
+                setPosts(Array.isArray(data) ? data : []);
+            } catch (err) {
+                console.error("글 불러오기 실패:", err);
+                setPosts([]);
+            }
+        };
+        fetchPosts();
+    }, []);
+
+    const handleCategoryClick = (category) => {
+        setSelectedCategory(category);
     };
-    fetchPosts();
-  }, []);
 
+    // ✅ JSX 반드시 return으로 감싸기
+    return (
+        <div>
+            {/* 카테고리 버튼 */}
+            <CategoryButtons
+                selectedCategory={selectedCategory}
+                onClick={handleCategoryClick}
+            />
 
-
-        {/* 카테고리 버튼 */}
-        <CategoryButtons
-            selectedCategory={selectedCategory}
-            onClick={handleCategoryClick}
-            
-        />
+            {/* 마커 클릭 시 하단 카드 띄우기 */}
+            {selectedPost && (
+                <BottomCard>
+                    <div className="meta">
+                        <strong>{selectedPost.category}</strong>
+                        <span>{new Date(selectedPost.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div className="meta2">
+                        <div className="title">"{selectedPost.title}"</div>
+                        <button onClick={() => navigate(`/detail/${selectedPost.id}`)}>
+                            전체 글 보기
+                        </button>
+                    </div>
+                </BottomCard>
+            )}
         </div>
     );
-
-      {/* 마커 클릭 시 하단 카드 띄우기 */}
-      {selectedPost && (
-        <BottomCard>
-          <div className="meta">
-            <strong>{selectedPost.category}</strong>
-            <span>{new Date(selectedPost.created_at).toLocaleDateString()}</span>
-          </div>
-          <div className="meta2">
-            <div className="title">"{selectedPost.title}"</div>
-            <button onClick={() => navigate(`/detail/${selectedPost.id}`)}>전체 글 보기</button>
-          </div>
-        </BottomCard>
-      )}
-    </div>
-  );
 };
 
 export default MapPage;
+
 
 /* ---------- styled ---------- */
 const BottomCard = styled.div`
