@@ -27,9 +27,7 @@ export const HomeWrap = styled.main`
   max-width: 430px;
   margin: 0 auto;
   background: ${colors.bg};
-  padding: 12px 16px;
-  padding-top: 70px;       /* 공통 헤더 높이 */
-  padding-bottom: 92px;    /* 하단 네비 가림 방지 */
+  padding: 0px 16px;
   box-sizing: border-box;
   min-height: 100dvh;
 

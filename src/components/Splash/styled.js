@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 
-/* 로고 톤에 맞춘 색상 (필요시 여기만 살짝 조절)
-   --brand: 메인 민트/그린, --text: 회색 본문 */
+
+/* --brand: 메인 민트/그린, --text: 회색 본문 */
 const brand = "#2FA99B";
 const text = "#666";
 
@@ -22,7 +22,8 @@ export const Wrap = styled.div`
   justify-content: center;
   gap: 28px;
 
-  /* 2초 뒤 자연스럽게 사라짐 */
+  /* 2초 뒤 사라지는 효과 */
+
   animation: ${fadeOut} 2s ease-out forwards;
 
   /* 스플래시 동안 뒤 콘텐츠 클릭 방지 */

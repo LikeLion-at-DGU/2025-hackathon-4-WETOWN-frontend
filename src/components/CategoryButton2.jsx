@@ -24,7 +24,7 @@ export default CategoryButtons2;
 
 const Wrapper = styled.div`
   position: absolute;
-  top: 130px; 
+  top: 128px; 
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
@@ -47,10 +47,10 @@ const Button = styled.button`
     font-size: 12px;
     transition: 0.2s all;
 
-    background: ${(props) => (props.selected ? "#4B6BFB" : "#fff")};
+    background: ${(props) => (props.selected ? "#00B890" : "#fff")};
     color: ${(props) => (props.selected ? "#fff" : "#333")};
 
     &:hover {
-        background: ${(props) => (props.selected ? "#3a56d4" : "#f5f5f5")};
+        background: ${(props) => (props.selected ? "#00B890" : "#f5f5f5")};
     }
 `;
