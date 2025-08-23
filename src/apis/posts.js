@@ -41,3 +41,14 @@ export const getPostDetail = async (postId) => {
 
 
 
+// 댓글 목록 조회
+export const getComments = async (postId) => {
+    const res = await instance.get(`/posts/${postId}/comments/`);
+    return Array.isArray(res.data) ? res.data : [];
+};
+
+// 댓글 작성
+export const createComment = async (postId, content) => {
+    const res = await instance.post(`/posts/${postId}/comments/`, { content });
+    return res.data; // {id, writer?, content, created_at, post, ...}
+};

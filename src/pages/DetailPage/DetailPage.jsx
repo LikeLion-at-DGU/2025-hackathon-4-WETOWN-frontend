@@ -5,36 +5,48 @@ import * as S from "./DetailPage.styled";
 import { FiMessageCircle, FiBookmark, FiSend } from "react-icons/fi";
 import { AiOutlineLike } from "react-icons/ai";
 import { useDetailPage } from "../../hooks/DetailPage/useDetailPage";
-import instance from "../../apis/instance"; // axios 인스턴스
+import instance from "../../apis/instance";
+import { createComment } from "../../apis/posts";
 
 const DetailPage = () => {
     const { postId } = useParams();
     const navigate = useNavigate();
-
     const { post, comments, loading, refetch } = useDetailPage(postId);
 
+    // 좋아요 상태
     const [likes, setLikes] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
     const [liking, setLiking] = useState(false);
 
+    // 댓글 상태
+    const [localComments, setLocalComments] = useState([]);
+    const [commentInput, setCommentInput] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [showCommentInput, setShowCommentInput] = useState(false); // ✅ 댓글 입력칸 토글
+
+    // 훅에서 가져온 댓글 → 로컬 상태로 동기화
+    useEffect(() => {
+        setLocalComments(Array.isArray(comments) ? comments : []);
+    }, [comments]);
+
+    // 좋아요 초기화
     useEffect(() => {
         if (!post) return;
         setLikes(Number(post.likes_count ?? 0));
         setIsLiked(Boolean(post.is_liked));
     }, [post]);
 
+    // 좋아요 토글
     const handleLike = async () => {
         if (liking) return;
         setLiking(true);
-
         try {
             let res;
             if (isLiked) {
-                // 🔥 핵심 수정: DELETE를 request()로 명시적 호출
                 res = await instance.request({
                     url: `/posts/${postId}/like`,
                     method: "DELETE",
-                    data: {}, // 이 위치여야 함!
+                    data: {},
                 });
             } else {
                 res = await instance.post(`/posts/${postId}/like`, {});
@@ -55,6 +67,36 @@ const DetailPage = () => {
         }
     };
 
+    // 댓글 전송
+    const submitComment = async (e) => {
+        e.preventDefault();
+        const text = commentInput.trim();
+        if (!text || submitting) return;
+
+        const tempId = `temp-${Date.now()}`;
+        const optimistic = {
+            id: tempId,
+            content: text,
+            created_at: new Date().toISOString(),
+            post: Number(postId),
+        };
+
+        setLocalComments((prev) => [...prev, optimistic]);
+        setCommentInput("");
+        setSubmitting(true);
+
+        try {
+            const saved = await createComment(postId, text);
+            setLocalComments((prev) =>
+                prev.map((c) => (c.id === tempId ? saved : c))
+            );
+        } catch (err) {
+            console.error("댓글 작성 실패:", err);
+            setLocalComments((prev) => prev.filter((c) => c.id !== tempId));
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -117,7 +159,10 @@ const DetailPage = () => {
                         <S.MetaItem
                             highlight
                             onClick={handleLike}
-                            style={{ cursor: liking ? "not-allowed" : "pointer", opacity: liking ? 0.6 : 1 }}
+                            style={{
+                                cursor: liking ? "not-allowed" : "pointer",
+                                opacity: liking ? 0.6 : 1,
+                            }}
                             title={isLiked ? "좋아요 취소" : "좋아요"}
                             aria-pressed={isLiked}
                         >
@@ -125,9 +170,14 @@ const DetailPage = () => {
                             <span>{likes}</span>
                         </S.MetaItem>
 
-                        <S.MetaItem title="댓글 수">
+                        {/* 댓글 버튼 → 입력창 토글 */}
+                        <S.MetaItem
+                            title="댓글 달기"
+                            style={{ cursor: "pointer" }}
+                            onClick={() => setShowCommentInput((prev) => !prev)}
+                        >
                             <FiMessageCircle />
-                            <span>{comments.length}</span>
+                            <span>{localComments.length}</span>
                         </S.MetaItem>
                     </S.MetaLeft>
 
@@ -139,21 +189,39 @@ const DetailPage = () => {
                 </S.MetaBar>
             </S.Card>
 
+            {/* 댓글 리스트 */}
             <S.CommentsWrap>
-                {comments.map((c, idx) => (
-                    <S.CommentItem key={c.id ?? idx}>
+                {localComments.map((c, idx) => (
+                    <S.CommentItem key={c.id ?? `c-${idx}`}>
                         <S.No>익명 {idx + 1}</S.No>
                         <S.Bubble>{c.content}</S.Bubble>
                     </S.CommentItem>
                 ))}
+                {localComments.length === 0 && (
+                    <div style={{ color: "#666", padding: "12px 8px" }}>
+                        첫 댓글을 남겨보세요!
+                    </div>
+                )}
             </S.CommentsWrap>
 
-            <S.CommentBar>
-                <S.Input placeholder="댓글을 입력하세요." />
-                <S.SendBtn aria-label="send">
-                    <FiSend size={18} />
-                </S.SendBtn>
-            </S.CommentBar>
+            {/* 댓글 입력칸 (토글됨) */}
+            {showCommentInput && (
+                <S.CommentBar as="form" onSubmit={submitComment}>
+                    <S.Input
+                        placeholder="댓글을 입력하세요."
+                        value={commentInput}
+                        onChange={(e) => setCommentInput(e.target.value)}
+                        disabled={submitting}
+                    />
+                    <S.SendBtn
+                        aria-label="send"
+                        type="submit"
+                        disabled={submitting || !commentInput.trim()}
+                    >
+                        <FiSend size={18} />
+                    </S.SendBtn>
+                </S.CommentBar>
+            )}
         </S.Wrap>
     );
 };
