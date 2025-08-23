@@ -26,6 +26,11 @@ export const toggleLike = async (postId) => {
     return res.data; // { likes_count, is_liked }
 };
 
+
+
+
+
+
 // 게시글 상세 조회 API 
 export const getPostDetail = async (postId) => {
     const res = await instance.get(`/posts/${postId}`, {
@@ -33,3 +38,6 @@ export const getPostDetail = async (postId) => {
     });
     return res.data; // { likes_count, is_liked, ... }
 };
+
+
+

@@ -30,10 +30,13 @@ const DetailPage = () => {
         try {
             let res;
             if (isLiked) {
-                // ✅ 좋아요 취소 (DELETE는 반드시 { data: {} } 형태로 보내야 함)
-                res = await instance.delete(`/posts/${postId}/like`, { data: {} });
+                // 🔥 핵심 수정: DELETE를 request()로 명시적 호출
+                res = await instance.request({
+                    url: `/posts/${postId}/like`,
+                    method: "DELETE",
+                    data: {}, // 이 위치여야 함!
+                });
             } else {
-                // ✅ 좋아요 추가
                 res = await instance.post(`/posts/${postId}/like`, {});
             }
 
@@ -41,7 +44,6 @@ const DetailPage = () => {
                 setLikes(Number(res.data.likes_count));
                 setIsLiked(Boolean(res.data.is_liked));
             } else {
-                // 만약 응답이 비어 있으면 refetch
                 const fresh = await refetch();
                 setLikes(Number(fresh.likes_count ?? 0));
                 setIsLiked(Boolean(fresh.is_liked));
@@ -52,6 +54,7 @@ const DetailPage = () => {
             setLiking(false);
         }
     };
+
 
     if (loading) {
         return (

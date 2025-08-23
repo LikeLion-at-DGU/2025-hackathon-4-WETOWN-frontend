@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-const categories = ["불편 / 민원", "동네 바람", "정보 공유", "자유 의견"];
+const categories = ["불편/민원", "동네 바람", "정보 공유", "자유 의견"];
 
 const CategoryButtons = ({ selectedCategory, onClick }) => {
     return (
