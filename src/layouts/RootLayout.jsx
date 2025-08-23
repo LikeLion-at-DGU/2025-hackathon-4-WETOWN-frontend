@@ -1,12 +1,13 @@
 // src/layouts/RootLayout.jsx
 import React, { useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
+import styled from "styled-components";
 import Splash from "../components/Splash/Splash";
-import Header from "../components/Header/Header";
+
 import BottomNav from "../components/BottomNav/BottomNav";
+import Header from "../components/Header/Header";
 
 export default function RootLayout() {
-  // 세션(탭)당 1회만 스플래시 노출
   const [showSplash, setShowSplash] = useState(
     () => !sessionStorage.getItem("splashSeen")
   );
@@ -17,18 +18,34 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <>
-      {/* 스플래시 오버레이 (2초 뒤 onDone 호출) */}
+    <Layout>
+      {/* 스플래시 오버레이 */}
       {showSplash && <Splash onDone={handleDone} />}
 
-      {/* 스플래시가 끝난 후에만 헤더 노출 */}
+      {/* 스플래시 끝난 뒤에만 헤더 & 네비 노출 */}
       {!showSplash && <Header />}
 
-      {/* 페이지 콘텐츠는 항상 렌더 (옵션 B) */}
-      <Outlet />
+      <Content>
+        <Outlet />  {/* 여기서 각 페이지가 바뀌면서 렌더링 */}
+      </Content>
 
-      {/* 스플래시가 끝난 후에만 네비 노출 */}
       {!showSplash && <BottomNav />}
-    </>
+    </Layout>
   );
 }
+
+/* ---------- styled ---------- */
+const Layout = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+`;
+
+const Content = styled.main`
+  flex: 1;
+  overflow-y: auto;
+
+  /* Header / BottomNav 높이만큼 여백 */
+  padding-top: 70px;    
+  padding-bottom: 92px;
+`;
