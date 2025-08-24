@@ -7,6 +7,7 @@ import { AiOutlineLike } from "react-icons/ai";
 import { useDetailPage } from "../../hooks/DetailPage/useDetailPage";
 import instance from "../../apis/instance";
 import { createComment } from "../../apis/posts";
+import { useCommentContext } from "../../components/Board/CommentContext";
 
 const DetailPage = () => {
     const { postId } = useParams();
@@ -22,7 +23,9 @@ const DetailPage = () => {
     const [localComments, setLocalComments] = useState([]);
     const [commentInput, setCommentInput] = useState("");
     const [submitting, setSubmitting] = useState(false);
-    const [showCommentInput, setShowCommentInput] = useState(false); // ✅ 댓글 입력칸 토글
+
+    // Context로 관리되는 댓글 입력창 토글 상태
+    const { showCommentInput, setShowCommentInput } = useCommentContext();
 
     // 훅에서 가져온 댓글 → 로컬 상태로 동기화
     useEffect(() => {
@@ -181,11 +184,6 @@ const DetailPage = () => {
                         </S.MetaItem>
                     </S.MetaLeft>
 
-                    <S.MetaRight>
-                        <S.IconBtn aria-label="bookmark">
-                            <FiBookmark />
-                        </S.IconBtn>
-                    </S.MetaRight>
                 </S.MetaBar>
             </S.Card>
 
@@ -204,7 +202,7 @@ const DetailPage = () => {
                 )}
             </S.CommentsWrap>
 
-            {/* 댓글 입력칸 (토글됨) */}
+            {/* 댓글 입력칸 (탭바 대신 최하단 고정) */}
             {showCommentInput && (
                 <S.CommentBar as="form" onSubmit={submitComment}>
                     <S.Input

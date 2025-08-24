@@ -49,6 +49,6 @@ export const getComments = async (postId) => {
 
 // 댓글 작성
 export const createComment = async (postId, content) => {
-    const res = await instance.post(`/posts/${postId}/comments/`, { content });
+    const res = await instance.post(`/posts/${postId}/comments`, { content });
     return res.data; // {id, writer?, content, created_at, post, ...}
 };

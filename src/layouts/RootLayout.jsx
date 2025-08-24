@@ -3,9 +3,9 @@ import React, { useState, useCallback } from "react";
 import { Outlet } from "react-router-dom";
 import styled from "styled-components";
 import Splash from "../components/Splash/Splash";
-
 import BottomNav from "../components/BottomNav/BottomNav";
 import Header from "../components/Header/Header";
+import { CommentProvider, useCommentContext } from "../components/Board/CommentContext";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(
@@ -18,20 +18,32 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Layout>
-      {/* 스플래시 오버레이 */}
-      {showSplash && <Splash onDone={handleDone} />}
+    <CommentProvider>
+      <Layout>
+        {/* ✅ 스플래시 */}
+        {showSplash && <Splash onDone={handleDone} />}
 
-      {/* 스플래시 끝난 뒤에만 헤더 & 네비 노출 */}
-      {!showSplash && <Header />}
+        {/* ✅ 스플래시 끝난 뒤에만 헤더 & 네비 */}
+        {!showSplash && <Header />}
 
-      <Content>
-        <Outlet />  {/* 여기서 각 페이지가 바뀌면서 렌더링 */}
-      </Content>
+        <Content>
+          <Outlet />
+        </Content>
 
-      {!showSplash && <BottomNav />}
-    </Layout>
+        {/* ✅ BottomNav는 별도 컴포넌트로 분리해서 Context 안에서 제어 */}
+        <BottomNavWrapper showSplash={showSplash} />
+      </Layout>
+    </CommentProvider>
   );
+}
+
+/* ---------- BottomNav 제어용 ---------- */
+function BottomNavWrapper({ showSplash }) {
+  const { showCommentInput } = useCommentContext();
+
+  if (showSplash) return null;           // 스플래시 중이면 숨김
+  if (showCommentInput) return null;     // 댓글 입력창 열리면 숨김
+  return <BottomNav />;
 }
 
 /* ---------- styled ---------- */
@@ -46,6 +58,6 @@ const Content = styled.main`
   overflow-y: auto;
 
   /* Header / BottomNav 높이만큼 여백 */
-  padding-top: 70px;    
+  padding-top: 70px;
   padding-bottom: 92px;
 `;

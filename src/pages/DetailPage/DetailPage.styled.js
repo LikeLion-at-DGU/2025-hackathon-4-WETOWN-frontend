@@ -144,7 +144,7 @@ export const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 14px;
+  font-size: 17px;
   color: #666;
 
   ${(p) => p.highlight && `
@@ -201,7 +201,7 @@ export const CommentBar = styled.div`
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 90px;
+  bottom: 0;
   max-width: 420px;
   margin: 0 auto 0;
   display: flex;
@@ -216,7 +216,7 @@ export const Input = styled.input`
   flex: 1;
   height: 42px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 20px;
   background: #ffffff;
   padding: 0 12px;
   font-size: 14px;
@@ -228,16 +228,21 @@ export const Input = styled.input`
 `;
 
 export const SendBtn = styled.button`
-  width: 44px;
-  height: 42px;
+  width: 36px;
+  height: 36px;
   border: 0;
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #57b08a;
   color: #fff;
+
+  &:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
 `;
 
 export const Loading = styled.div`
