@@ -1,33 +1,36 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { sendChatMessage } from "../../apis/posts";
 import { FiSend } from "react-icons/fi";
 import splashLogo from "../../components/assets/splash.svg";
+
+// Noto Sans KR 임포트 (ChatbotPage 전용)
+const FontImport = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+`;
 
 // 전체 컨테이너
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 130px); /* BottomNav 높이 고려 */
+  height: calc(100vh - 130px); 
   background: #fbfafa;
-  overflow: hidden; /* 전체 스크롤 방지 */
+  overflow: hidden;
+  font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 `;
 
 // 타이틀
 const Title = styled.h3`
   color: #757575;
-  font-family: Pretendard;
   font-size: 20px;
-  font-style: normal;
   font-weight: 700;
-  line-height: normal;
   margin: 16px 0;
 `;
 
 // 채팅 영역
 const ChatArea = styled.div`
   flex: 1;
-  overflow-y: auto; /* 메시지 많아지면 여기만 스크롤 */
+  overflow-y: auto;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -40,9 +43,9 @@ const Bubble = styled.div`
   margin: 6px 0;
   border-radius: 12px;
   max-width: 80%;
-  line-height: 1.4;
-  white-space: pre-line; /* 줄바꿈 유지 */
-  background: ${(props) => (props.sender === "user" ? "#d1d5d1" : " rgba(5, 189, 149, 0.5)")};
+  line-height: 1.5;
+  white-space: pre-line;
+  background: ${(props) => (props.sender === "user" ? "#d1d5d1" : "rgba(5, 189, 149, 0.5)")};
   align-self: ${(props) => (props.sender === "user" ? "flex-end" : "flex-start")};
 `;
 
@@ -102,7 +105,6 @@ const ChatbotPage = () => {
     const handleSend = async () => {
         if (!input.trim()) return;
 
-        // 첫 메시지 → 대화 시작 화면 전환
         if (!isStarted) setIsStarted(true);
 
         setMessages((prev) => [...prev, { sender: "user", text: input }]);
@@ -123,6 +125,7 @@ const ChatbotPage = () => {
 
     return (
         <Container>
+            <FontImport />
             {!isStarted ? (
                 <StartScreen>
                     <Logo>

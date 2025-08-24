@@ -7,19 +7,18 @@ export default function useKakaoAddressPicker({
   initialLat = 37.5665,
   initialLng = 126.9780,
   level = 3,
-  active = true, // 탭/스텝 전환 시 비활성화 가능
+  active = true,
   debounceMs = 250,
 }) {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState(null);
 
   const mapRef = useRef(null);
-  const markerRef = useRef(null);
   const geocoderRef = useRef(null);
   const placesRef = useRef(null);
 
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState([]); // {label, address, lat, lng}
+  const [suggestions, setSuggestions] = useState([]);
   const debounceTimer = useRef(null);
 
   // SDK + 지도 초기화
@@ -37,8 +36,8 @@ export default function useKakaoAddressPicker({
         const center = new kakao.maps.LatLng(initialLat, initialLng);
 
         if (!mapRef.current) {
+          // 지도만 생성 (마커는 생성하지 않음)
           mapRef.current = new kakao.maps.Map(container, { center, level });
-          markerRef.current = new kakao.maps.Marker({ position: center, map: mapRef.current });
           geocoderRef.current = new kakao.maps.services.Geocoder();
           placesRef.current = new kakao.maps.services.Places();
         }
@@ -55,16 +54,15 @@ export default function useKakaoAddressPicker({
     };
   }, [containerId, initialLat, initialLng, level, active]);
 
-  // 지도/마커 중심 이동
+  // 지도 중심 이동
   const setCenter = useCallback((lat, lng) => {
     const kakao = window.kakao;
-    if (!mapRef.current || !markerRef.current || !kakao) return;
+    if (!mapRef.current || !kakao) return;
     const pos = new kakao.maps.LatLng(lat, lng);
     mapRef.current.setCenter(pos);
-    markerRef.current.setPosition(pos);
   }, []);
 
-  // 주소 → 좌표 (정확주소용)
+  // 주소 → 좌표
   const geocodeAddress = useCallback((addrText) => {
     const kakao = window.kakao;
     return new Promise((resolve, reject) => {
@@ -91,7 +89,7 @@ export default function useKakaoAddressPicker({
     });
   }, []);
 
-  // 키워드 검색 (자동완성 느낌)
+  // 키워드 검색
   const searchPlaces = useCallback((text) => {
     const kakao = window.kakao;
     return new Promise((resolve, reject) => {
@@ -108,13 +106,13 @@ export default function useKakaoAddressPicker({
           }));
           resolve(list);
         } else {
-          resolve([]); // 결과 없음은 빈 배열
+          resolve([]);
         }
       }, opts);
     });
   }, []);
 
-  // 입력값 변경 시 디바운스로 제안 조회
+  // 입력값 변경 시 제안 검색
   const onChangeQuery = useCallback((text) => {
     setQuery(text);
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
@@ -132,7 +130,7 @@ export default function useKakaoAddressPicker({
     }, debounceMs);
   }, [searchPlaces, debounceMs]);
 
-  // 제안 목록 중 하나 선택
+  // 제안 선택
   const pickSuggestion = useCallback((item) => {
     setSuggestions([]);
     setQuery(item.address || item.label);
@@ -140,7 +138,7 @@ export default function useKakaoAddressPicker({
     return { lat: item.lat, lng: item.lng, address: item.address || item.label };
   }, [setCenter]);
 
-  // 엔터로 정확주소 검색(지오코딩)
+  // 엔터로 주소 검색
   const searchByAddress = useCallback(async () => {
     if (!query?.trim()) return null;
     try {
@@ -148,9 +146,8 @@ export default function useKakaoAddressPicker({
       setCenter(r.lat, r.lng);
       setQuery(r.address);
       setSuggestions([]);
-      return r; // {lat,lng,address,label}
+      return r;
     } catch {
-      // 주소검색 실패 → 키워드로 재시도
       const list = await searchPlaces(query);
       setSuggestions(list);
       return null;
@@ -159,10 +156,11 @@ export default function useKakaoAddressPicker({
 
   return {
     ready,
-    error,             // "NO_APPKEY" / "KAKAO_SDK_LOAD_ERROR" / "CONTAINER_NOT_FOUND" 등
+    error,
     query, setQuery,
     suggestions, onChangeQuery, pickSuggestion,
     searchByAddress,
     setCenter,
+    map: mapRef.current, // 👈 map 객체 반환
   };
 }
