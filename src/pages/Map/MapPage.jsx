@@ -1,5 +1,4 @@
-// src/pages/Map/MapPage.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CategoryButtons from "../../components/CategoryButton";
 import KakaoMap from "../../components/KakaoMap";
@@ -10,17 +9,16 @@ import styled from "styled-components";
 const MapPage = () => {
     const navigate = useNavigate();
 
-    const [selectedCategory, setSelectedCategory] = useState(null);
-    const [search, setSearch] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(null); // null = 미선택
+    const [search, setSearch] = useState(""); // "" = 미입력
     const [posts, setPosts] = useState([]);
-    const [selectedPost, setSelectedPost] = useState(null); // ✅ 마커 클릭한 글
-
+    const [selectedPost, setSelectedPost] = useState(null); // 마커 클릭 글
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
                 const data = await getPosts();
-                setPosts(data);
+                setPosts(data || []);
             } catch (err) {
                 console.error("글 불러오기 실패:", err);
             }
@@ -28,13 +26,43 @@ const MapPage = () => {
         fetchPosts();
     }, []);
 
+    // 🔎 조합별 필터링
+    const filteredPosts = useMemo(() => {
+        const q = (search || "").trim().toLowerCase();
+        const hasQuery = q.length > 0;
+        const hasCategory = !!selectedCategory;
+
+        // 0) 검색X & 카테고리X → 초기/비어있음: 마커 표시 안 함
+        if (!hasQuery && !hasCategory) return [];
+
+        return (posts || []).filter((p) => {
+            const inCategory = hasCategory ? p.category === selectedCategory : true;
+
+            const haystack = [
+                p.title,
+                p.content,
+                p.address,  // 백엔드에 따라 address/location 중 실제 필드 사용
+                p.location,
+            ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase();
+
+            const inSearch = hasQuery ? haystack.includes(q) : true;
+
+            // 1) 검색만: inSearch && (카테고리 무시)
+            // 2) 카테고리만: inCategory && (검색 무시)
+            // 3) 둘 다: inSearch && inCategory
+            return inCategory && inSearch;
+        });
+    }, [posts, selectedCategory, search]);
+
     return (
-        <div style={{ position: "relative", width: "100%", height: "100vh" }}>
-            {/* 지도 */}
-            <KakaoMap posts={posts} onMarkerClick={setSelectedPost} />
+        <div style={{ position: "relative", maxWidth: "420px", height: "100vh", margin: "0 auto"  }}>
+            {/* 지도 - 필터링된 글만 마커로 */}
+            <KakaoMap posts={filteredPosts} onMarkerClick={setSelectedPost} />
 
             {/* 검색창 */}
-
             <div
                 style={{
                     position: "absolute",
@@ -45,11 +73,11 @@ const MapPage = () => {
                     zIndex: 10,
                 }}
             >
-
                 <SearchBar
                     value={search}
                     onChange={setSearch}
-                    onSearch={() => console.log("검색:", search)}
+                    onSearch={() => {/* 엔터/버튼 동작시 필요하면 유지 */ }}
+                    placeholder="제목/내용/주소로 검색"
                 />
             </div>
 
@@ -59,13 +87,15 @@ const MapPage = () => {
                 onClick={setSelectedCategory}
             />
 
-            {/* ✅ 마커 클릭 시 하단 카드 띄우기 */}
+            {/* 마커 클릭 시 하단 카드 */}
             {selectedPost && (
                 <BottomCard>
                     <div className="meta">
                         <strong>{selectedPost.category}</strong>
                         <span>
-                            {new Date(selectedPost.created_at).toLocaleDateString()}
+                            {selectedPost.created_at
+                                ? new Date(selectedPost.created_at).toLocaleDateString()
+                                : ""}
                         </span>
                     </div>
                     <div className="meta2">
@@ -85,7 +115,7 @@ export default MapPage;
 /* ---------- styled ---------- */
 const BottomCard = styled.div`
   position: absolute;
-  bottom: 150px; /* 하단 탭바 위로 띄움 */
+  bottom: 150px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
@@ -124,6 +154,5 @@ const BottomCard = styled.div`
     border-radius: 6px;
     cursor: pointer;
     font-size: 13px;
-
   }
 `;
