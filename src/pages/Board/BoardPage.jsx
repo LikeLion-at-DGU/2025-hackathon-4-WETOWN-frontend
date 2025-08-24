@@ -1,68 +1,22 @@
 import { useState, useEffect,useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
+import axios from "axios";
 import SearchBar from "../../components/Board/SearchBar";
 import CategoryButtons2 from "../../components/CategoryButton2";
 import AdBanner from "../../components/Board/AdBanner";
 import PostList from "../../components/Board/PostList";
-// 정적 목데이터 (UI 확인용)
-const MOCK_POSTS = [
-    {
-        id: 1,
-        writer: "홍길동",
-        title: "정릉3동 가로등 고장",
-        content: "밤에 너무 어두워요.",
-        created_at: "2025-08-14T11:32:10.123Z",
-        category: "치안/안전",
-        dong: "정릉3동",
-        image: null,
-    },
-    {
-        id: 2,
-        writer: "김철수",
-        title: "쓰레기 무단 투기",
-        content: "길모퉁이에 쓰레기가 쌓여있어요.",
-        created_at: "2025-08-15T09:20:00.000Z",
-        category: "환경/청결",
-        dong: "광희동",
-        image: null,
-    },
-];
 
 // 상단 import는 기존 그대로
 
 const BoardPage = () => {
+    const [posts, setPosts] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedCategory, setSelectedCategory] = useState(""); // "" = 전체
     const [selectedDong, setSelectedDong] = useState("");         // "" = 전체
     const [startDate, setStartDate] = useState("");               // "YYYY-MM-DD" 또는 ""
     const [endDate, setEndDate] = useState("");
-
-
-    // 정적 UI 단계에서는 화면 표시만. (로컬 필터만 간단 적용)
-    const filtered = MOCK_POSTS.filter((p) => {
-        const matchCategory = !selectedCategory || p.category === selectedCategory;
-        const q = search.trim();
-        const matchSearch =
-            !q ||
-            p.title.includes(q) ||
-            p.content.includes(q) ||
-            p.dong.includes(q) ||
-            p.category.includes(q);
-        const matchDong = !selectedDong || p.dong === selectedDong;
-
-        // 날짜 필터 
-        const created = new Date(p.created_at).toISOString().slice(0, 10);
-        const afterStart = !startDate || created >= startDate;
-        const beforeEnd = !endDate || created <= endDate;
-
-        return matchCategory && matchSearch && matchDong && afterStart && beforeEnd;
-    });
-
-    return (
-        <Page>
-            <SearchBar value={search} onChange={setSearch} onSearch={() => { /* 정적 단계: 동작 없음 */ }} />
-            <div style={{ marginTop: "0px" , marginBottom: "45px"}}>
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -155,10 +109,8 @@ const BoardPage = () => {
                 <CategoryButtons2
                     selectedCategory={selectedCategory}
                     onClick={setSelectedCategory}
-                    
                 />
             </div>
-            
 
             <Filters>
                 {/* 🔸 백엔드 스키마의 'dong' 값과 동일하게 옵션 구성 */}
@@ -185,11 +137,9 @@ const BoardPage = () => {
             </Filters>
 
             <AdBanner />
-
             <PostList posts={filtered} />
 
             <WriteBtn onClick={() => navigate("/post")}>글쓰기</WriteBtn>
-
         </Page>
     );
 };
@@ -199,7 +149,7 @@ export default BoardPage;
 
 /* ---------- styled ---------- */
 const Page = styled.div`
-    margin-top: 70px; /* 헤더 높이 고려 */
+    margin-top: 0; /* 헤더 높이 고려 */
 `;
 
 const Filters = styled.div`
@@ -227,5 +177,29 @@ const Dates = styled.div`
         font-size: 12px;      
         border-radius: 6px;   
         border: 1px solid #ddd;
+    }
+`;
+
+
+const WriteBtn = styled.button`
+    position: fixed;
+    bottom: 90px;   /* 탭바 위쪽에 띄우기 */
+    right: 20px;
+    background: #2C917B;
+    color: #fff;
+    border: none;
+    border-radius: 15px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+
+    display: flex;
+    align-items: center;
+    gap: 8px;   /* 텍스트와 아이콘 간격 */
+
+    &:hover {
+        background: #89c7b9;
     }
 `;
