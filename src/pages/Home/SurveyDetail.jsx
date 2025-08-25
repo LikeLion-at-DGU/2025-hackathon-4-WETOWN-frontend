@@ -101,8 +101,8 @@ function normalizeResults(raw) {
       const key = (item.key ?? item.name ?? item.option ?? item.label ?? "")
         .toString().toLowerCase();
       const cnt = toNum(item.count ?? item.value ?? item.total ?? item.cnt ?? 0) ?? 0;
-      if (["yes","agree","satisfied","good","y","true","찬성"].includes(key)) yes += cnt;
-      else if (["no","disagree","unsatisfied","bad","n","false","반대"].includes(key)) no += cnt;
+      if (["yes","agree","satisfied","good","y","true","만족"].includes(key)) yes += cnt;
+      else if (["no","disagree","unsatisfied","bad","n","false","불만족"].includes(key)) no += cnt;
     }
     return { yes, no };
   }
@@ -369,9 +369,9 @@ export default function SurveyDetail() {
           <ResultHeader>투표현황</ResultHeader>
 
           {total > 0 ? (
-            <ResultBar aria-label={`찬성 ${yesPct}%, 반대 ${noPct}%`} style={{ minWidth: 0 }}>
-              {yesPct > 0 && <YesSeg style={{ flexBasis: `${yesPct}%` }}>찬성({yesPct}%)</YesSeg>}
-              {noPct  > 0 && <NoSeg  style={{ flexBasis: `${noPct }%` }}>반대({noPct }%)</NoSeg>}
+            <ResultBar aria-label={`만족 ${yesPct}%, 불만족 ${noPct}%`} style={{ minWidth: 0 }}>
+              {yesPct > 0 && <YesSeg style={{ flexBasis: `${yesPct}%` }}>만족({yesPct}%)</YesSeg>}
+              {noPct  > 0 && <NoSeg  style={{ flexBasis: `${noPct }%` }}>불만족({noPct }%)</NoSeg>}
             </ResultBar>
           ) : (
             <ResultBar style={{ minWidth: 0 }} aria-label="집계 없음" />
@@ -379,7 +379,7 @@ export default function SurveyDetail() {
 
           {total > 0 ? (
             <div style={{ marginTop: 8, color: "#555", fontSize: 13 }}>
-              총 <b>{total}</b>표 · 찬성 <b>{yes}</b> · 반대 <b>{no}</b>
+              총 <b>{total}</b>표 · 만족 <b>{yes}</b> · 불만족 <b>{no}</b>
             </div>
           ) : (
             <div style={{ marginTop: 8, color: "#777", fontSize: 14 }}>
