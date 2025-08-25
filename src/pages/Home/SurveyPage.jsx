@@ -35,7 +35,7 @@ export default function SurveyPage() {
         setLoading(true);
         setErr(null);
         // ✅ 슬래시 제거: GET /surveys
-        const { data } = await axios.get(`${API_BASE}/surveys`);
+        const { data } = await axios.get(`${API_BASE}/surveys/`);
         if (!alive) return;
         setSurveys(Array.isArray(data) ? data : (data?.results ?? []));
       } catch (e) {
